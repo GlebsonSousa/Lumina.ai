@@ -1,0 +1,701 @@
+/* =============================================================================
+   style.css — Lumina AI
+   Design preservado do original. Variáveis CSS no :root para edição rápida.
+   ============================================================================= */
+
+/* ── Reset & Variáveis ────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:           #0d0d0d;
+  --surface:      #161616;
+  --surface2:     #1e1e1e;
+  --border:       #2a2a2a;
+  --text:         #f0ede8;
+  --muted:        #6b6965;
+  --accent:       #e8d5b0;
+  --accent2:      #c4a96a;
+  --green:        #4caf7d;
+  --red:          #e05a5a;
+  --radius:       12px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Outfit', system-ui, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ── Navbar ───────────────────────────────────────────────────────────────── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(13, 13, 13, 0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav__inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav__brand {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent2);
+  display: inline-block;
+}
+
+.nav__links {
+  display: flex;
+  gap: 24px;
+}
+
+.nav__link {
+  font-size: 0.83rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav__link:hover,
+.nav__link.on {
+  color: var(--text);
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────────────── */
+.hero {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 60px 20px 32px;
+}
+
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+
+.hero__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.hero__title em {
+  font-style: italic;
+  color: var(--accent2);
+}
+
+.hero__sub {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.75;
+}
+
+/* ── App Grid ─────────────────────────────────────────────────────────────── */
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* ── Compare Card ─────────────────────────────────────────────────────────── */
+.compare-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Altura mínima enquanto não há imagem */
+  min-height: 400px;
+}
+
+.compare-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  padding: 40px;
+  text-align: center;
+}
+
+.compare-placeholder svg {
+  opacity: 0.3;
+}
+
+.compare-placeholder p {
+  font-size: 0.85rem;
+}
+
+/* ── Slider antes/depois ──────────────────────────────────────────────────── */
+/*
+  Estratégia:
+  - .slider-wrap ocupa 100% da largura do card, altura definida pela imagem
+  - .sl-before fica estática, define a altura real do container
+  - .sl-after fica sobre ela com position:absolute + clip-path
+  - O input[range] invisível cobre tudo e serve de hotspot de arrasto
+*/
+.slider-wrap {
+  position: relative;
+  width: 100%;
+  display: none;          /* visível apenas após processamento */
+  user-select: none;
+  cursor: ew-resize;
+}
+
+/* A imagem "antes" define a altura natural do bloco */
+.sl-before {
+  display: block;
+  width: 100%;
+  line-height: 0;
+}
+
+.sl-before img {
+  width: 100%;
+  height: auto;           /* altura proporcional à imagem real */
+  display: block;
+}
+
+/* A imagem "depois" fica sobreposta com position:absolute */
+.sl-after {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  clip-path: inset(0 50% 0 0); /* revelada da esquerda até o traço */
+}
+
+.sl-after img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sl-label {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 100px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.sl-label.r {
+  left: auto;
+  right: 10px;
+}
+
+/* Área de arrasto invisível — cobre toda a imagem */
+.sl-drag-area {
+  position: absolute;
+  inset: 0;
+  cursor: ew-resize;
+  z-index: 10;
+}
+
+/* Traço vertical branco */
+.sl-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.95);
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* Bolinha no centro do traço */
+.sl-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  background: #fff;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  /* Setas ← → dentro da bolinha via box-shadow decorativo */
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Loading Overlay ──────────────────────────────────────────────────────── */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--surface);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 20;
+}
+
+.loading-overlay.on {
+  display: flex;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent2);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.loading-overlay p {
+  font-size: 0.83rem;
+  color: var(--muted);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Controls Card ────────────────────────────────────────────────────────── */
+.controls {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Steps ────────────────────────────────────────────────────────────────── */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.step.done .step-num {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.step.done {
+  color: var(--text);
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Upload Zone ──────────────────────────────────────────────────────────── */
+.upload {
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  padding: 26px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.upload:hover,
+.upload.over {
+  border-color: var(--accent2);
+  background: rgba(196, 169, 106, 0.04);
+}
+
+.upload svg {
+  margin: 0 auto 10px;
+  color: var(--muted);
+}
+
+.upload__text {
+  font-size: 0.87rem;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+
+.upload__text strong {
+  color: var(--text);
+}
+
+.upload__hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.upload__name {
+  font-size: 0.78rem;
+  color: var(--green);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ── Mode Separator ───────────────────────────────────────────────────────── */
+/* Linha "ou ajuste os parâmetros manualmente" entre os dois botões */
+.mode-separator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.mode-separator::before,
+.mode-separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Params (sliders) ─────────────────────────────────────────────────────── */
+.params {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.param__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.param__label {
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.param__val {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+  background: var(--surface2);
+  padding: 2px 8px;
+  border-radius: 100px;
+  min-width: 36px;
+  text-align: center;
+}
+
+.param__desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 100px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+/* ── Botão Processar ──────────────────────────────────────────────────────── */
+.btn-proc {
+  width: 100%;
+  padding: 13px 20px;
+  background: var(--accent);
+  color: #111;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-proc:hover:not(:disabled) {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.btn-proc:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Variante do botão padrão: visual outline para diferenciar */
+.btn-proc--default {
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent2);
+}
+
+.btn-proc--default:hover:not(:disabled) {
+  background: rgba(196, 169, 106, 0.08);
+  opacity: 1;
+}
+
+.btn-proc--default:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Spinner dentro dos botões */
+.btn-proc .sp {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: #111;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* No botão outline, o spinner precisa da cor certa */
+.btn-proc--default .sp {
+  border-color: rgba(196, 169, 106, 0.3);
+  border-top-color: var(--accent2);
+}
+
+.btn-proc.loading .sp    { display: block; }
+.btn-proc.loading .bt    { display: none; }
+.btn-proc.loading::after { content: 'Processando...'; font-size: 0.92rem; font-weight: 600; }
+
+/* ── Botão Download ───────────────────────────────────────────────────────── */
+.btn-dl {
+  display: none;
+  width: 100%;
+  padding: 11px 20px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+  text-decoration: none;
+}
+
+.btn-dl:hover {
+  border-color: var(--accent2);
+  background: rgba(196, 169, 106, 0.06);
+}
+
+/* ── About ────────────────────────────────────────────────────────────────── */
+.about {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 60px 20px;
+}
+
+.about__inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.about__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.about__text {
+  font-size: 0.87rem;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.about__text strong {
+  color: var(--accent2);
+  font-weight: 500;
+}
+
+/* ── Toast ────────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--red);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 200;
+  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+}
+
+.toast.on {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Canvas oculto (usado internamente pelo JS para processar pixels) */
+#workCanvas {
+  display: none;
+}
+
+/* ── Responsivo ───────────────────────────────────────────────────────────── */
+@media (max-width: 680px) {
+  .hero {
+    padding: 36px 16px 24px;
+  }
+
+  .app {
+    grid-template-columns: 1fr;
+    padding: 0 16px 60px;
+  }
+
+  .compare-card {
+    min-height: 260px;
+  }
+
+  .about__inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .about {
+    padding: 40px 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .controls {
+    padding: 14px;
+  }
+}

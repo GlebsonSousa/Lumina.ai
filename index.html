@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Lumina AI — HDR Fusion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- ── NAVBAR ─────────────────────────────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="nav__inner">
+      <span class="nav__brand"><span class="nav__dot"></span>Lumina AI</span>
+      <div class="nav__links">
+        <a href="#app" class="nav__link on">Como Funciona</a>
+        <a href="#sobre" class="nav__link">Sobre Nós</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ── HERO ───────────────────────────────────────────────────────────────── -->
+    <section class="hero">
+      <div class="hero__badge">
+        <span class="hero__badge-dot"></span>15 de março de 2026 · HDR Fusion v2
+      </div>
+      <h1 class="hero__title">
+        Como o Algoritmo do<br/><em>Lumina AI</em> Funciona
+      </h1>
+      <p class="hero__sub">
+        Processamento HDR local, direto no navegador. Nenhum upload para servidores externos — sua foto nunca sai do seu dispositivo.
+      </p>
+    </section>
+
+    <!-- ── APP ────────────────────────────────────────────────────────────────── -->
+    <section class="app" id="app">
+
+      <!-- Coluna esquerda: comparação antes/depois -->
+      <div class="compare-card" id="compareCard">
+        <div class="compare-placeholder" id="placeholder">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="m21 15-5-5L5 21"/>
+          </svg>
+          <p>A comparação antes/depois<br/>aparecerá aqui</p>
+        </div>
+
+        <div class="slider-wrap" id="sliderWrap">
+          <div class="sl-before"><img id="imgBefore" src="" alt="Antes"/></div>
+          <div class="sl-after" id="slAfter"><img id="imgAfter" src="" alt="Depois"/></div>
+          <span class="sl-label">Antes</span>
+          <span class="sl-label r">Depois</span>
+          <div class="sl-drag-area" id="slDragArea"></div>
+          <div class="sl-divider" id="slDiv"></div>
+        </div>
+
+        <div class="loading-overlay" id="loadOverlay">
+          <div class="spinner"></div>
+          <p id="loadMsg">Analisando luminância...</p>
+        </div>
+      </div>
+
+      <!-- Coluna direita: controles -->
+      <div class="controls">
+
+        <!-- Indicador de passos -->
+        <div class="steps">
+          <div class="step" id="step1"><span class="step-num">1</span> Enviar imagem</div>
+          <div class="step" id="step2"><span class="step-num">2</span> Ajustar parâmetros</div>
+          <div class="step" id="step3"><span class="step-num">3</span> Processar e comparar</div>
+        </div>
+
+        <hr class="divider"/>
+
+        <!-- Zona de upload -->
+        <div class="upload" id="uploadZone">
+          <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.webp" hidden/>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <p class="upload__text"><strong>Arraste e solte sua imagem aqui</strong> ou clique para selecionar</p>
+          <p class="upload__hint">PNG · JPG · JPEG · WEBP — até 20MB</p>
+          <p class="upload__name" id="uploadName"></p>
+        </div>
+
+        <!-- Botão Modo Padrão -->
+        <!-- exposure_boost=2.5, mask_hardening=12.0 — valores originais do Python -->
+        <button class="btn-proc btn-proc--default" id="btnProcDefault" disabled>
+          <span class="bt">Processar (Modo Padrão)</span>
+          <span class="sp"></span>
+        </button>
+
+        <div class="mode-separator">
+          <span>ou ajuste os parâmetros manualmente</span>
+        </div>
+
+        <!-- Sliders de parâmetros -->
+        <div class="params">
+          <div>
+            <div class="param__head">
+              <label class="param__label" for="exposureBoost">Intensidade da Luz</label>
+              <span class="param__val" id="expVal">2.5×</span>
+            </div>
+            <input type="range" id="exposureBoost" min="1.0" max="5.0" step="0.1" value="2.5"/>
+            <p class="param__desc">Quanto clarear as sombras. Valores altos podem saturar.</p>
+          </div>
+          <div>
+            <div class="param__head">
+              <label class="param__label" for="maskHard">Proteção do Céu</label>
+              <span class="param__val" id="maskVal">12</span>
+            </div>
+            <input type="range" id="maskHard" min="1" max="25" step="1" value="12"/>
+            <p class="param__desc">Firmeza da separação entre céu e sombra.</p>
+          </div>
+        </div>
+
+        <!-- Botão Modo Personalizado -->
+        <button class="btn-proc" id="btnProc" disabled>
+          <span class="bt">Processar Imagem</span>
+          <span class="sp"></span>
+        </button>
+
+        <!-- Botão de download (aparece após processamento) -->
+        <a class="btn-dl" id="btnDl" href="#" download="lumina_resultado.png">
+          ↓ Baixar Imagem Processada
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── SOBRE ───────────────────────────────────────────────────────────────── -->
+  <section class="about" id="sobre">
+    <div class="about__inner">
+      <div>
+        <h2 class="about__title">Como o algoritmo funciona?</h2>
+        <p class="about__text">
+          O Lumina AI usa <strong>HDR Fusion</strong>: cria uma versão super-exposta da sua foto via curva gamma e a funde com o original usando um mapa de luminância. Áreas escuras recebem mais luz; áreas claras ficam intactas. O <strong>Guided Filter</strong> garante bordas nítidas sem o halo característico.
+        </p>
+      </div>
+      <div>
+        <h2 class="about__title">100% local, 100% privado</h2>
+        <p class="about__text">
+          Toda a lógica roda no seu navegador via <strong>Canvas API</strong> e JavaScript puro. O algoritmo é uma reimplementação fiel do código <strong>PyTorch</strong> original — mesma matemática, zero servidores externos. Sua foto nunca sai do dispositivo.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Toast de erro -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Canvas oculto usado para processar pixels -->
+  <canvas id="workCanvas"></canvas>
+
+  <script src="app.js"></script>
+</body>
+</html>
